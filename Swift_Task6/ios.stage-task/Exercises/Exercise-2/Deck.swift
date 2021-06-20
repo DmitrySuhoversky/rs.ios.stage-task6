@@ -28,26 +28,58 @@ extension Deck {
 
     init(with type: DeckType) {
         self.type = type
+        let suits = Suit.allCases
+        let values = Value.allCases
+        cards = createDeck(suits: suits, values: values)
+        
     }
 
     public func createDeck(suits:[Suit], values:[Value]) -> [Card] {
-        []
+        var deck = [Card] ()
+        
+        for suit in suits {
+            for value in values {
+                deck.append(Card(suit: suit, value: value))
+            }
+        }
+        return deck
     }
 
-    public func shuffle() {
+    public mutating func shuffle() {
+        var temporaryCards = cards
+        
+        while let randomCards = temporaryCards.randomElement() {
+            cards.append(randomCards)
+            let index = temporaryCards.firstIndex(of: randomCards)!
+            temporaryCards.remove(at: index)
+        }
 
     }
 
-    public func defineTrump() {
-
+    public mutating func defineTrump() {
+        trump = cards.first?.suit
+        setTrumpCards(for: trump!)
     }
 
-    public func initialCardsDealForPlayers(players: [Player]) {
-
+    public mutating func initialCardsDealForPlayers(players: [Player]) {
+        if players.count <= 6 {
+            for player in players {
+                var temporary = [Card]()
+                for index in 0 ..< 6 {
+                    temporary.append(cards[index])
+                }
+                player.hand = temporary
+                cards.removeFirst(6)
+            }
+        }
     }
 
-    public func setTrumpCards(for suit:Suit) {
-
+    public mutating func setTrumpCards(for suit:Suit) {
+        for (index, card) in cards.enumerated() {
+            if card.suit == suit {
+                cards[index].isTrump = true
+            }
+        }
     }
 }
 
